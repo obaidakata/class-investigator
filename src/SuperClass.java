@@ -1,6 +1,7 @@
 public class SuperClass
 {
 
+    public final int y = 3;
     public SuperClass()
     {
 

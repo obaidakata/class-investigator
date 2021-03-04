@@ -1,13 +1,15 @@
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Mirror  extends SuperClass implements Investigator
+public class Mirror extends SuperClass implements Investigator
 {
     private Object toInvestigate;
+    private final int x = 1;
 
     public Mirror()
     {
@@ -62,6 +64,14 @@ public class Mirror  extends SuperClass implements Investigator
         {
             System.out.println(nameL);
         }
+
+        int countOfConstantFields =  getCountOfConstantFields();
+
+        System.out.printf("countOfConstantFields = %d\n", countOfConstantFields);
+
+        isExtending();
+
+        System.out.println(getParentClassSimpleName());
     }
 
     @Override
@@ -74,15 +84,13 @@ public class Mirror  extends SuperClass implements Investigator
     @Override
     public int getTotalNumberOfConstructors()
     {
-        int numberOfConstructors = 0;
         Constructor[] constructors  = toInvestigate.getClass().getDeclaredConstructors();
-        numberOfConstructors = constructors.length;
-//        for(Constructor constructor: constructors)
+        //        for(Constructor constructor: constructors)
 //        {
 //            System.out.println(Arrays.toString(constructor.getParameterTypes()));
 //        }
 
-        return numberOfConstructors;
+        return constructors.length;
     }
 
     @Override
@@ -110,8 +118,6 @@ public class Mirror  extends SuperClass implements Investigator
         {
             interfacesNames.add(objectInterface.getName());
         }
-        numberOfInterfaces = interfaces.length;
-
 
         return interfacesNames;
     }
@@ -119,25 +125,46 @@ public class Mirror  extends SuperClass implements Investigator
     @Override
     public int getCountOfConstantFields()
     {
-        return 0;
+        int numberOfConstantFields = 0;
+        Field[] fields = toInvestigate.getClass().getDeclaredFields();
+        for(Field field: fields)
+        {
+            int fieldModifiers = field.getModifiers();
+            if(Modifier.isFinal(fieldModifiers))
+            {
+                numberOfConstantFields++;
+            }
+        }
+
+        return numberOfConstantFields;
     }
 
     @Override
     public int getCountOfStaticMethods()
     {
-        return 0;
+        Method[] allMethods = toInvestigate.getClass().getDeclaredMethods();
+        int numberOfStaticMethods = 0;
+        for(Method method: allMethods)
+        {
+            if(Modifier.isStatic(method.getModifiers()))
+            {
+                numberOfStaticMethods++;
+            }
+        }
+        return numberOfStaticMethods;
     }
 
     @Override
     public boolean isExtending()
     {
-        return false;
+        Class<?> superClass = toInvestigate.getClass().getSuperclass();
+        return !superClass.getSimpleName().equals("Object");
     }
 
     @Override
     public String getParentClassSimpleName()
     {
-        return null;
+        return toInvestigate.getClass().getSuperclass().getSimpleName();
     }
 
     @Override
@@ -149,6 +176,7 @@ public class Mirror  extends SuperClass implements Investigator
     @Override
     public Set<String> getNamesOfAllFieldsIncludingInheritanceChain()
     {
+        Field[] allFileds = toInvestigate.getClass().getFields();
         return null;
     }
 
